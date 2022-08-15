@@ -10,7 +10,7 @@ RUN pip install "poetry==$POETRY_VERSION"
 
 # Copy the poetry files to speed up builds.
 WORKDIR /code
-COPY poetry.lock pyproject.toml docker-compose.yml ./
+COPY poetry.lock pyproject.toml ./
 
 # Install dependencies via Poetry.
 RUN poetry config virtualenvs.create false \

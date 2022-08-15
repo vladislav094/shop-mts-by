@@ -20,11 +20,11 @@ pipeline {
     }
     }
 
-    stage('Build image') {
-        steps {
-        sh "docker build -t web_test ."
-    }
-    }
+//     stage('Build image') {
+//         steps {
+//         sh "docker build -t web_test ."
+//     }
+//     }
 
     stage('Execute script') {
         steps {

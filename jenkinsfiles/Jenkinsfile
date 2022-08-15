@@ -1,0 +1,86 @@
+pipeline {
+    agent any
+    environment {
+        RUN_HEADLESS = 'True'
+        HEADLESS = '-e RUN_HEADLESS=True'
+    }
+
+    stages {
+
+//     stage("Docker Setup") {
+//         steps {
+//         sh "docker-compose up -d chrome selenium-hub allure allure-ui"
+//         sh "docker-compose up -d allure allure-ui"
+//     }
+//     }
+
+    stage("Clone repository") {
+        steps {
+        checkout scm
+    }
+    }
+
+    stage('Build image') {
+        steps {
+        sh "docker build -t web_test ."
+    }
+    }
+
+    stage('Execute script') {
+        steps {
+        catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+            sh "docker run \
+                -e RUN_HEADLESS=True \
+                --network='host' \
+                --name example1 \
+                --volume ${WORKSPACE}/allure-results/:/code/allure-results/ \
+                --volume selenium-server-allure-reports:/code/allure-reports/ \
+                web_test \
+                pytest -n3"
+
+//                 pytest --browser firefox --bversion 102.0 -n3
+//                 pytest --browser firefox --bversion 102.0 tests/negative_tests/test_general_checks.py
+// --volume selenium-server-allure-results:/code/allure-results/
+
+    }
+    }
+    }
+//                 --volume selenium-server-allure-results:/code/allure-results/
+//                 --volume selenium-server-allure-reports:/code/allure-reports/
+//                 --volume ${WORKSPACE}/allure-results:/code/allure-results/
+//                 --volume ${WORKSPACE}/allure-report:/code/allure-reports/
+
+//     stage('Copy directory from container into workspace') {
+//         steps {
+//         sh 'docker cp example1:/code/allure-results/ ${WORKSPACE}/'
+//     }
+//     }
+
+    stage('Remove container') {
+        steps {
+        sh 'docker rm -f example1'
+    }
+    }
+
+//     stage('Remove image') {
+//         steps {
+//         sh 'docker rmi web_test -f'
+//     }
+//     }
+
+//     stage('Teardown docker-compose') {
+//         steps {
+//         sh 'docker-compose down --rmi local'
+//     }
+//     }
+
+    stage('Allure Report') {
+        steps {
+            script {
+            allure includeProperties: false, jdk: '', results: [[path: 'allure-results']]
+    }
+    }
+
+}
+}
+}

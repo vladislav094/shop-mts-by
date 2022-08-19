@@ -25,12 +25,6 @@ pipeline {
     }
 
 
-     stage('Copy directory from container into workspace') {
-         steps {
-         sh 'docker cp example1:/code/allure-results/ ${WORKSPACE}/'
-     }
-     }
-
     stage('Remove container') {
         steps {
         sh 'docker rm -f example1'
